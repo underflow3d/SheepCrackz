@@ -1,6 +1,7 @@
 # include <iostream>
 # include <fstream>
 # include <openssl/md5.h>
+# include <openssl/sha.h>
 # include <iomanip>
 # include <string>
 # define newline '\n'
@@ -19,6 +20,24 @@ std::string md5Hash(const std::string& message) {
     }
 
     return ss.str();
+}
+
+std::string sha256Hash(const std::string& data) {
+    SHA256_CTX sha256Context;
+    SHA256_Init(&sha256Context);
+    SHA256_Update(&sha256Context, data.c_str(), data.length());
+
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_Final(hash, &sha256Context);
+
+    std::string hashString;
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
+        char hex[3];
+        sprintf(hex, "%02x", hash[i]);
+        hashString += hex;
+    }
+
+    return hashString;
 }
 
 int main(int argc, char* args[]) {
@@ -40,6 +59,22 @@ int main(int argc, char* args[]) {
 					return 0;
 				}
 			}
+			cout << "Not Found!" << newline;
+			return 0;
+			
+		}
+		else if(type == "sha256") {
+			string word;
+			while(getline(wordlist_file, word)) {
+				if(sha256Hash(word) == hash) {
+					cout << "Password Found" << newline;
+					cout << hash << ":" << word << newline;
+					return 0;
+				}
+
+			}
+			cout << "Not Found!" << newline;
+			return 0;
 		}
 		else {
 			cout << "Unsupported Hash Type!" << newline;
