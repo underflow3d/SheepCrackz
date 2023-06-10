@@ -40,6 +40,43 @@ std::string sha256Hash(const std::string& data) {
     return hashString;
 }
 
+std::string sha512Hash(const std::string& data) {
+    SHA512_CTX sha512Context;
+    SHA512_Init(&sha512Context);
+    SHA512_Update(&sha512Context, data.c_str(), data.length());
+
+    unsigned char hash[SHA512_DIGEST_LENGTH];
+    SHA512_Final(hash, &sha512Context);
+
+    std::string hashString;
+    for (int i = 0; i < SHA512_DIGEST_LENGTH; ++i) {
+        char hex[3];
+        sprintf(hex, "%02x", hash[i]);
+        hashString += hex;
+    }
+
+    return hashString;
+}
+
+std::string sha1Hash(const std::string& data) {
+    SHA_CTX sha1Context;
+    SHA1_Init(&sha1Context);
+    SHA1_Update(&sha1Context, data.c_str(), data.length());
+
+    unsigned char hash[SHA_DIGEST_LENGTH];
+    SHA1_Final(hash, &sha1Context);
+
+    std::string hashString;
+    for (int i = 0; i < SHA_DIGEST_LENGTH; ++i) {
+        char hex[3];
+        sprintf(hex, "%02x", hash[i]);
+        hashString += hex;
+    }
+
+    return hashString;
+}
+
+
 int main(int argc, char* args[]) {
 	if(argc < 4 || argc > 4) {
 		cout << "Usage: ./sheepcrackz hash_file wordlist_file hash_type" << newline;
@@ -72,6 +109,30 @@ int main(int argc, char* args[]) {
 					return 0;
 				}
 
+			}
+			cout << "Not Found!" << newline;
+			return 0;
+		}
+		else if (type == "sha512") {
+			string word;
+			while(getline(wordlist_file, word)) {
+				if(sha512Hash(word) == hash) {
+					cout << "Password Found" << newline;
+					cout << hash << ":" << word << newline;
+					return 0;
+				}
+			}
+			cout << "Not Found!" << newline;
+			return 0;
+		}
+		else if (type == "sha1") {
+			string word;
+			while(getline(wordlist_file, word)) {
+				if (sha1Hash(word) == hash) {
+					cout << "Password Found" << newline;
+					cout << hash << ":" << word << newline;
+					return 0;
+				}
 			}
 			cout << "Not Found!" << newline;
 			return 0;
